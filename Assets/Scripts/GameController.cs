@@ -5,7 +5,7 @@ public class GameController : MonoBehaviour
 {
     static OTSound SoundBackground;
 
-	// le singleton du gameController, readonly
+	// the singleton of the gameController, readonly
 	private static GameController _instance = null;
 	public static GameController Instance
 	{
@@ -188,7 +188,7 @@ public class GameController : MonoBehaviour
         if (LaunchTimer == true)
         {
             TimeInvinsible -= Time.deltaTime;
-            if (TimeInvinsible < 0.0f) // fin de l'invincibilite des gros points
+            if (TimeInvinsible < 0.0f) // end of the invinsibility
             {
                 if (BlinkyChar.Eatable == true)
                     BlinkyChar.SetToGhost("blinky", "blinky_anim");

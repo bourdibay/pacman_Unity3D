@@ -49,7 +49,7 @@ public class Clyde : ACharacter, IGhost
             moveToPoint((int)GameController.Instance.RespawnPoint.y, (int)GameController.Instance.RespawnPoint.x);
         else if (Eatable == true)
             frightenedBehaviour();
-        else // on fuit le pacman + ou - selon la distance
+        else // we flee the pacman + or - accoring to the distance
         {
             int diffX = PosX - GameController.Instance.PlayerChar.PosX;
             int diffY = PosY - GameController.Instance.PlayerChar.PosY;
@@ -60,7 +60,7 @@ public class Clyde : ACharacter, IGhost
             const int TILE_ECART = 8;
             int toX, toY;
 
-            // val absolue
+            // absolute value
             if (absX >= TILE_ECART && absY >= TILE_ECART)
             {
                 moveToPoint(GameController.Instance.PlayerChar.PosY, GameController.Instance.PlayerChar.PosX);
@@ -68,7 +68,7 @@ public class Clyde : ACharacter, IGhost
             }
             else if (absX <= TILE_ECART)
             {
-                if (diffX < 0) // je suis a gauche
+                if (diffX < 0) // I am on the left
                 {
                     toX = PosX - absX;
                     if (toX < 0)
