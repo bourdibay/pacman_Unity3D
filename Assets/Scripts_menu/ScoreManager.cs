@@ -1,6 +1,6 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -14,22 +14,22 @@ public class ScoreManager : MonoBehaviour
                                               SCORE_KEY + "5"
                                           };
 
-    private List<int> _scores = new List<int>();
+    private List<int> scoresSaved_ = new List<int>();
     public List<int> Scores
     {
-        get { return _scores; }
+        get { return scoresSaved_; }
     }
 
-    private static ScoreManager _instance = null;
+    private static ScoreManager instance_ = null;
     public static ScoreManager Instance
     {
         get
         {
-            if (_instance == null)
+            if (instance_ == null)
             {
-                _instance = new GameObject("ScoreManager").AddComponent<ScoreManager>();
+                instance_ = new GameObject("ScoreManager").AddComponent<ScoreManager>();
             }
-            return _instance;
+            return instance_;
         }
     }
 
@@ -40,12 +40,13 @@ public class ScoreManager : MonoBehaviour
 
     void Start()
     {
-        foreach (string sc in SCORE_KEYS)
+        // Load the score from<the preferences.
+        foreach (string score in SCORE_KEYS)
         {
-            int v = PlayerPrefs.GetInt(sc);
-            if (v != 0)
+            int scoreValue = PlayerPrefs.GetInt(score);
+            if (scoreValue != 0)
             {
-                _scores.Add(v);
+                scoresSaved_.Add(scoreValue);
             }
         }
     }
@@ -53,35 +54,19 @@ public class ScoreManager : MonoBehaviour
     void OnDestroy()
     {
         int i = 0;
-        foreach (int sc in _scores)
+        foreach (int score in scoresSaved_)
         {
-            if (i < SCORE_KEYS.Length) // in case of...
-                PlayerPrefs.SetInt(SCORE_KEYS[i], sc);
-            ++i;
+            PlayerPrefs.SetInt(SCORE_KEYS[i++], score);
         }
     }
 
-    public void addScore(int sc)
+    public void addScore(int score)
     {
-        int len = SCORE_KEYS.Length;
-        if (len > _scores.Count)
-            len = _scores.Count;
-        for (int i = 0; i < len; ++i)
+        scoresSaved_.Add(score);
+        scoresSaved_.Sort((x, y) => y.CompareTo(x)); // sort in reverse order
+        while (scoresSaved_.Count > SCORE_KEYS.Length)
         {
-            if (sc > _scores[i])
-            {
-                _scores.Insert(i, sc);
-                if (_scores.Count > SCORE_KEYS.Length)
-                    _scores.RemoveAt(SCORE_KEYS.Length);
-                return;
-            }
-        }
-
-        if (len < SCORE_KEYS.Length)
-        {
-            _scores.Add(sc);
-            if (_scores.Count > SCORE_KEYS.Length)
-                _scores.RemoveAt(SCORE_KEYS.Length);
+            scoresSaved_.RemoveAt(scoresSaved_.Count - 1);
         }
     }
 

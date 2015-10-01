@@ -170,7 +170,7 @@ public class GameController : MonoBehaviour
         {
             System.Threading.Thread.Sleep(2000);
             ++level;
-            if (level < Menu.LenLevels)
+            if (level < Menu.LevelsLength)
                 Application.LoadLevel("level");
             else
             {

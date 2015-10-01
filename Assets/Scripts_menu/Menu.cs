@@ -4,27 +4,25 @@ using System.Collections;
 [RequireComponent(typeof(AudioSource))]
 public class Menu : MonoBehaviour
 {
-    public AudioClip SoundOpening;
-
-    public GUISkin mySkin;
-
+    #region Public members to be set through the Unity editor
+    public AudioClip openingMusic;
+    public GUISkin skinToApply;
     public float widthWindow = 500.0f;
     public float heightWindow = 600.0f;
-
     public float widthButton = 200.0f;
     public float heightButton = 100.0f;
+    public float paddingBetweenButtons = 90.0f;
+    #endregion
 
-    public float ecartButton = 90.0f;
+    private Rect window_;
 
-    private Rect _window;
-
-    private enum Page
+    private enum MenuSection
     {
-        INDEX,
+        HOMEPAGE,
         HIGHSCORE
     }
-    private Page _page = Page.INDEX;
-    private readonly string[] _pageName = { 
+    private MenuSection currentMenuSection_ = MenuSection.HOMEPAGE;
+    private readonly string[] menuSectionNames_ = {
                                               "Main menu",
                                               "HighScore"
                                           };
@@ -35,60 +33,61 @@ public class Menu : MonoBehaviour
                                         "map2",
                                         "map3"
                                     };
-    static public int LenLevels = Levels.Length;
+    static public int LevelsLength = Levels.Length;
 
     void Start()
     {
-        _window = new Rect(Screen.width / 2.0f - widthWindow / 2.0f, Screen.height / 2.0f - heightWindow / 2.0f, widthWindow, heightWindow);
-        audio.PlayOneShot(SoundOpening);
+        window_ = new Rect(Screen.width / 2.0f - widthWindow / 2.0f, Screen.height / 2.0f - heightWindow / 2.0f, widthWindow, heightWindow);
+        GetComponent<AudioSource>().PlayOneShot(openingMusic);
     }
 
     void printHighScore()
     {
-        int i = 1;
-        const float h = 70.0f;
-        float w = widthButton;
+        int nbScores = 1;
+        const float heightScoreLine = 70.0f;
+        float widthScoreLine = widthButton;
 
-        foreach (int sc in ScoreManager.Instance.Scores)
+        foreach (int score in ScoreManager.Instance.Scores)
         {
-            ++i;
-            GUI.Label(new Rect(widthWindow / 2.0f - widthButton / 2.0f,  (h * i), w, h), sc.ToString());
+            ++nbScores;
+            GUI.Label(new Rect(widthWindow / 2.0f - widthButton / 2.0f, (heightScoreLine * nbScores), widthScoreLine, heightScoreLine), score.ToString());
         }
-        ++i;
-        if (GUI.Button(new Rect(widthWindow / 2.0f - widthButton / 2.0f, (h * i), w, 50.0f), "Return"))
+        ++nbScores;
+        if (GUI.Button(new Rect(widthWindow / 2.0f - widthButton / 2.0f, (heightScoreLine * nbScores), widthScoreLine, 50.0f), "Return"))
         {
-            _page = Page.INDEX;
+            currentMenuSection_ = MenuSection.HOMEPAGE;
         }
     }
 
-	/// <summary>
-	/// The WindowFunction for Gui.Window
-	/// </summary>
-	/// <param name='id'>
-	/// Identifier.
-	/// </param>
+    /// <summary>
+    /// The WindowFunction for Gui.Window
+    /// Called during the creation of the window.
+    /// </summary>
+    /// <param name='id'>
+    /// Identifier.
+    /// </param>
     void doWindow(int id)
     {
-        GUILayout.Label(_pageName[(int)_page]);
+        GUILayout.Label(menuSectionNames_[(int)currentMenuSection_]);
         GUILayout.BeginArea(new Rect(0.0f, 0.0f, widthWindow, heightWindow));
 
-        if (_page == Page.INDEX)
+        if (currentMenuSection_ == MenuSection.HOMEPAGE)
         {
-            if (GUI.Button(new Rect(widthWindow / 2.0f - widthButton / 2.0f, ecartButton, widthButton, heightButton), "Play"))
+            if (GUI.Button(new Rect(widthWindow / 2.0f - widthButton / 2.0f, paddingBetweenButtons, widthButton, heightButton), "Play"))
             {
-                _page = Page.INDEX;
+                currentMenuSection_ = MenuSection.HOMEPAGE;
                 Application.LoadLevel("level");
             }
-            if (GUI.Button(new Rect(widthWindow / 2.0f - widthButton / 2.0f, ecartButton * 2, widthButton, heightButton), "HighScore"))
+            if (GUI.Button(new Rect(widthWindow / 2.0f - widthButton / 2.0f, paddingBetweenButtons * 2, widthButton, heightButton), "HighScore"))
             {
-                _page = Page.HIGHSCORE;
+                currentMenuSection_ = MenuSection.HIGHSCORE;
             }
-            if (GUI.Button(new Rect(widthWindow / 2.0f - widthButton / 2.0f, ecartButton * 3, widthButton, heightButton), "Quit"))
+            if (GUI.Button(new Rect(widthWindow / 2.0f - widthButton / 2.0f, paddingBetweenButtons * 3, widthButton, heightButton), "Quit"))
             {
                 Application.Quit();
             }
         }
-        else if (_page == Page.HIGHSCORE)
+        else if (currentMenuSection_ == MenuSection.HIGHSCORE)
         {
             printHighScore();
         }
@@ -98,8 +97,8 @@ public class Menu : MonoBehaviour
 
     void OnGUI()
     {
-        GUI.skin = mySkin;
-        _window = GUI.Window(0, _window, doWindow, "");
+        GUI.skin = skinToApply;
+        window_ = GUI.Window(0, window_, doWindow, "");
     }
 
 }
