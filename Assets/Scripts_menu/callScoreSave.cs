@@ -1,13 +1,18 @@
 using UnityEngine;
 using System.Collections;
 
-public class callScoreSave : MonoBehaviour {
+namespace Assets.Scripts_menu
+{
 
-	// Use this for initialization
-    void Awake()
+    public class callScoreSave : MonoBehaviour
     {
-        ScoreManager t = ScoreManager.Instance;
-        // disable the warning
-        t.enabled = true;
+
+        // Use this for initialization
+        void Awake()
+        {
+            ScoreManager t = ScoreManager.Instance;
+            // disable the warning
+            t.enabled = true;
+        }
     }
 }
