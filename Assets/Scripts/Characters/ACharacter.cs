@@ -8,7 +8,7 @@ namespace Assets.Scripts
 {
     public abstract class ACharacter : MonoBehaviour
     {
-        // Set by LevelsLoader in Start()
+        // Set by LevelsLoader in Awake()
         public LevelElements LevelElements;
         protected OTAnimatingSprite script_anim;
 
@@ -32,13 +32,6 @@ namespace Assets.Scripts
             }
         }
 
-        /// <summary>
-        /// Check that the value of the position x or y set to the character is in the range of the map.
-        /// If it is not, we set it to the opposite of the map. As a result we can deal with circular paths.
-        /// </summary>
-        /// <param name="v"></param>
-        /// <param name="dim">The dimension of the map to check</param>
-        /// <returns></returns>
         protected int CheckOutOfBound(int v, int limit)
         {
             if (v < 0)

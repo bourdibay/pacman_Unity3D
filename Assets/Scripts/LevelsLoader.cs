@@ -69,8 +69,6 @@ namespace Assets.Scripts
 
         void Awake()
         {
-            Debug.Log("Awake LevelsLoader");
-
             levelFilename_ = Menu.Levels[CurrentLevel];
             TextAsset levelAsset = (TextAsset) Resources.Load("Levels/" + levelFilename_, typeof(TextAsset));
             if (levelAsset == null)
@@ -84,11 +82,14 @@ namespace Assets.Scripts
             StringReader reader = new StringReader(levelAsset.text);
             if (reader == null)
             {
-                Debug.LogError("not found or not readable");
+                Debug.LogError("Level text file not found or not readable");
             }
             else
             {
                 level_ = new LevelElements(widthMap, heightMap);
+                level_.FruitObject = fruit;
+                var gameInstance = game.GetComponent<Game>();
+                gameInstance.LevelElements = level_;
 
                 Vector2 graphicCoord = new Vector2(0.0f, 0.0f);
                 Vector2Int mapCoord = new Vector2Int(0, heightMap - 1);
@@ -100,7 +101,6 @@ namespace Assets.Scripts
                         GameObject toInstance = TranslateCharToInstance(c, graphicCoord, mapCoord);
                         if (toInstance != null)
                         {
-                            // wall, point
                             if (!IsACharacter(c))
                             {
                                 InstantiateInanimateElement(toInstance, graphicCoord, c);
@@ -119,14 +119,8 @@ namespace Assets.Scripts
                     mapCoord.x = 0;
                     --mapCoord.y;
                 }
-                // GameController.Instance.MaxPoint = GameController.Instance.NbPoint;
                 Application.targetFrameRate = 30;
             }
-        }
-
-        void Start()
-        {
-            Debug.Log("Start LevelsLoader");
         }
 
         private GameObject TranslateCharToInstance(char c, Vector2 graphicCoord, Vector2Int mapCoord)
@@ -190,7 +184,7 @@ namespace Assets.Scripts
             widthMap = 0;
             if (reader_tmp == null)
             {
-                Debug.LogError("map not found or not readable");
+                Debug.LogError("Map not found or not readable");
             }
             else
             {
@@ -306,6 +300,5 @@ namespace Assets.Scripts
             sp.transform.position = new Vector3(graphicCoord.x, graphicCoord.y, 0.0f);
             sp.size = new Vector2(1, 1);
         }
-
     }
 }

@@ -42,7 +42,6 @@ namespace Assets.Scripts
         {
             if (IsRunning)
             {
-                Debug.Log("Is running TIMER:" + TimeLeft);
                 TimeLeft -= Time.deltaTime;
                 if (TimeLeft <= 0.0f)
                 {
@@ -75,7 +74,6 @@ namespace Assets.Scripts
         // TODO: separate running timers to speed up this loop.
         public void Update()
         {
-            Debug.Log("UPDATE GAME TIMER");
             foreach (EntityTimer timer in timers)
             {
                 timer.Update();

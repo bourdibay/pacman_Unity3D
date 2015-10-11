@@ -18,11 +18,13 @@ namespace Assets.Scripts
         private CharactersMediator characters_ = new CharactersMediator();
         public CharactersMediator Characters { get { return characters_; } }
 
+        // Set by LevelsLoader in Awake().
+        public LevelElements LevelElements;
+
         private OTView _view = null;
 
         void Awake()
         {
-            Debug.Log("Awake Game");
             GameObject obj = GameObject.Find("View");
             if (obj != null)
             {
@@ -34,29 +36,30 @@ namespace Assets.Scripts
             }
         }
 
-       // static int nbPointsToReachForNewLife_ = 1;
+        static int nbPointsToReachForNewLife_ = 1;
         private Texture2D lifeHUD_;
         private Texture2D fruitHUD_;
 
         void Start()
         {
-            Debug.Log("Start Game");
+            soundPlayer_.Start();
+            soundPlayer_.PlayGameMusicInLoop();
+
             lifeHUD_ = (Texture2D)Resources.Load("life");
-            fruitHUD_ = (Texture2D)Resources.Load("sprites/cerise");
-            // nbPointsToReachForNewLife_ = 1;
-
-            characters_.Pacman.NbLife = Pacman.INITIAL_NB_LIFE;
+            fruitHUD_ = (Texture2D)Resources.Load("sprites/cherry");
+            nbPointsToReachForNewLife_ = 1;
             
-            //TODO: should not be there... We need to keep the scoring in the next levels.
-            CurrentScore = 0;
-
             timer_.InvincibilityTimer.TimerCompleted += new EventHandler(InvincibilityTimeOver);
+            timer_.FruitTimer.TimerCompleted += new EventHandler(FruitTimeOver);
         }
 
         void InvincibilityTimeOver(object sender, EventArgs e)
         {
-            Debug.Log("IN THE CALLBACK INVINCIBILITY");
             characters_.SetNormalCharacterStates();
+        }
+        void FruitTimeOver(object sender, EventArgs e)
+        {
+            LevelElements.DestroyFruit();
         }
 
         void Update()
@@ -73,9 +76,10 @@ namespace Assets.Scripts
                 }
             }
 
-            characters_.CheckPacmanEatGhost();
-            if (characters_.PacmanHasBeenEaten())
+            CurrentScore = characters_.CheckPacmanEatGhost(soundPlayer_, CurrentScore);
+            if (characters_.PacmanHasBeenEaten(soundPlayer_))
             {
+                timer_.InvincibilityTimer.IsRunning = false;
                 characters_.ResetAllPositions();
             }
 
@@ -84,7 +88,7 @@ namespace Assets.Scripts
                 GoBackToMenu();
             }
 
-            if (characters_.Pacman.LevelElements.NbPoints <= 0)
+            if (LevelElements.NbPoints <= 0)
             {
                 if (!LevelsLoader.LoadNextLevel())
                 {
@@ -92,63 +96,23 @@ namespace Assets.Scripts
                 }
             }
 
-            /*
-            // +1 life each 10 000 pts
-            if ((int)(CurrentScore / 10000) >= _pointToReachForLife)
+            if (!LevelElements.HasEatenFruit &&
+                (LevelElements.NbPoints == 70 ||
+                LevelElements.NbPoints == 170) &&
+                !LevelElements.IsFruitInstantiated())
             {
-                PlayerChar.NbLife += (((int)(CurrentScore / 10000) - _pointToReachForLife) + 1);
-                _pointToReachForLife = (int)(CurrentScore / 10000) + 1;
+                LevelElements.PopUpFruit();
+                timer_.FruitTimer.IsRunning = true;
             }
 
+            GetNewLifeIfNeeded();
 
-            if (SoundBackground.isPlaying == false)
+            if (!soundPlayer_.SoundIsPlaying())
             {
-                SoundBackground.Play();
-                SoundBackground.Loop();
-            }
-            
-            if (IsFruit == false && ((NbPoint == 70 && _recapFruit[1] == false) || (NbPoint == 170 && _recapFruit[0] == false)))
-            {
-                if (NbPoint == 170)
-                    _recapFruit[0] = true;
-                else
-                    _recapFruit[1] = true;
-
-                _timerFruit = 10.0f;
-                IsFruit = true;
-                _fruitGOI = (GameObject)Instantiate(FruitGO);
-                if (_fruitGOI != null)
-                {
-                    OTFilledSprite sp = _fruitGOI.GetComponent<OTFilledSprite>();
-                    sp.position = FruitCoord;
-                    sp.transform.rotation = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
-                    sp.depth = 0;
-                    sp.transform.position = new Vector3(FruitCoord.x, FruitCoord.y, 0.0f);
-                    sp.size = new Vector2(1, 1);
-                }
+                soundPlayer_.PlayGameMusicInLoop();
             }
 
-            if (IsFruit == true)
-            {
-                _timerFruit -= Time.deltaTime;
-                if (_timerFruit <= 0.0f)
-                {
-                    Destroy(_fruitGOI);
-                    _fruitGOI = null;
-                    // destroy fruit
-                }
-            }
-            */
-
-            if (Input.GetKey(KeyCode.A))
-            {
-                if (!LevelsLoader.LoadNextLevel())
-                {
-                    Debug.Log("menu load level");
-                    Menu.LoadMenu();
-                }
-            }
-
+            // Zoom in or out the boardgame.
             if (Input.GetKey(KeyCode.KeypadPlus))
             {
                 if (_view != null)
@@ -167,9 +131,21 @@ namespace Assets.Scripts
             timer_.Update();
         }
 
+        private void GetNewLifeIfNeeded()
+        {
+            // +1 life each 10 000 pts
+            if ((int)(CurrentScore / 10000) >= nbPointsToReachForNewLife_)
+            {
+                characters_.Pacman.NbLife += (((int)(CurrentScore / 10000) - nbPointsToReachForNewLife_) + 1);
+                nbPointsToReachForNewLife_ = (int)(CurrentScore / 10000) + 1;
+            }
+        }
+
         private void GoBackToMenu()
         {
             ScoreManager.Instance.addScore(CurrentScore);
+            CurrentScore = 0;
+            characters_.Pacman.NbLife = Pacman.INITIAL_NB_LIFE;
             Menu.LoadMenu();
         }
 
@@ -177,27 +153,28 @@ namespace Assets.Scripts
         {
             if (objectInCollision.tag == "point")
             {
-                --characters_.Pacman.LevelElements.NbPoints;
+                --LevelElements.NbPoints;
                 CurrentScore += 10;
-                //SoundChomp.Play();
                 Destroy(objectInCollision.gameObject);
+                soundPlayer_.PlayChomp();
             }
             else if (objectInCollision.tag == "bigPoint")
             {
-                --characters_.Pacman.LevelElements.NbPoints;
+                --LevelElements.NbPoints;
                 CurrentScore += 50;
-                //SoundIntermission.Play();
                 Destroy(objectInCollision.gameObject);
 
                 characters_.SetInvincibilityTime();
                 timer_.InvincibilityTimer.IsRunning = true;
-
+                soundPlayer_.PlayInvincible();
             }
             else if (objectInCollision.tag == "fruit")
             {
                 CurrentScore += 100;
-                //SoundEatFruit.PlayClone();
-                Destroy(objectInCollision.gameObject);
+                LevelElements.DestroyFruit();
+                LevelElements.HasEatenFruit = true;
+                timer_.FruitTimer.IsRunning = false;
+                soundPlayer_.PlayFruitEaten();
             }
         }
 
@@ -209,7 +186,7 @@ namespace Assets.Scripts
         void OnGUI()
         {
             GUI.Label(new Rect(0.0f, 0.0f, 100.0f, 20.0f), "Score: " + CurrentScore);
-            GUI.Label(new Rect(0.0f, 20.0f, 100.0f, 20.0f), "Points left: " + characters_.Pacman.LevelElements.NbPoints);
+            GUI.Label(new Rect(0.0f, 20.0f, 100.0f, 20.0f), "Points left: " + LevelElements.NbPoints);
 
             float x = 0.0f;
             for (int i = 0; i < characters_.Pacman.NbLife; ++i)
@@ -217,7 +194,10 @@ namespace Assets.Scripts
                  GUI.Label(new Rect(x, Screen.height - 50.0f, 50.0f, 50.0f), lifeHUD_);
                  x += 50.0f;
              }
-            GUI.Label(new Rect(Screen.width - 50.0f, Screen.height - 50.0f, 50.0f, 50.0f), fruitHUD_);
+            if (LevelElements.HasEatenFruit)
+            {
+                GUI.Label(new Rect(Screen.width - 50.0f, Screen.height - 50.0f, 50.0f, 50.0f), fruitHUD_);
+            }
         }
     }
 

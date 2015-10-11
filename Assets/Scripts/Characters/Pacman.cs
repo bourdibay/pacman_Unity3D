@@ -22,6 +22,7 @@ namespace Assets.Scripts
         public Pacman()
         {
             Frame = FRAME_PACMAN;
+            Eatable = EatableState.CAN_BE_EATEN;
         }
 
         public bool IsDead()
@@ -34,9 +35,7 @@ namespace Assets.Scripts
 
         void OnTriggerEnter(Collider hit)
         {
-            Debug.Log("TOUCHED COLLISION" + hit.tag);
             ObjectIncollision.Enqueue(hit);
         }
-
     }
 }

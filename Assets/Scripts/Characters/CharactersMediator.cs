@@ -14,7 +14,7 @@ namespace Assets.Scripts
             get { return pacman_; }
             set { pacman_ = value; }
         }
-  
+
         enum GhostType
         {
             BLINKY,
@@ -45,9 +45,11 @@ namespace Assets.Scripts
             set { ghosts_[(int)GhostType.CLYDE] = value; }
         }
 
+        private int nbGhostEatenInRow_ = 0;
+
         public void MovePacman()
         {
-            getInput();
+            GetInput();
             Pacman.MoveToDirection();
         }
 
@@ -85,7 +87,7 @@ namespace Assets.Scripts
             return objectInCollision;
         }
 
-        public bool PacmanHasBeenEaten()
+        public bool PacmanHasBeenEaten(SoundPlayer soundPlayer)
         {
             if (Pacman.Eatable == ACharacter.EatableState.CAN_BE_EATEN)
             {
@@ -95,14 +97,22 @@ namespace Assets.Scripts
                         ghost.X == Pacman.X && ghost.Y == Pacman.Y)
                     {
                         --Pacman.NbLife;
+                        soundPlayer.PlayPacmanEaten();
                         return true;
                     }
                 }
             }
             return false;
         }
-        public void CheckPacmanEatGhost()
+        public int CheckPacmanEatGhost(SoundPlayer soundPlayer, int currentScore)
         {
+            int[] scoreEnergyzerGhost = {
+                                             200,
+                                             400,
+                                             800,
+                                             1600,
+                                             12000
+                                         };
             if (Pacman.Eatable == ACharacter.EatableState.CANNOT_BE_EATEN)
             {
                 foreach (Ghost ghost in ghosts_)
@@ -111,10 +121,18 @@ namespace Assets.Scripts
                         ghost.X == Pacman.X && ghost.Y == Pacman.Y)
                     {
                         ghost.SetEatenState();
-                        // TODO: bonus point
+                        soundPlayer.PlayGhostEaten();
+
+                        currentScore += scoreEnergyzerGhost[nbGhostEatenInRow_++];
+                        if (nbGhostEatenInRow_ == 4) // MAXI BONUS !!!!!
+                        {
+                            currentScore += scoreEnergyzerGhost[nbGhostEatenInRow_];
+                            nbGhostEatenInRow_ = 0;
+                        }
                     }
                 }
             }
+            return currentScore;
         }
 
         public void SetInvincibilityTime()
@@ -131,6 +149,7 @@ namespace Assets.Scripts
 
         public void SetNormalCharacterStates()
         {
+            nbGhostEatenInRow_ = 0;
             foreach (Ghost ghost in ghosts_)
             {
                 if (ghost.Eatable == ACharacter.EatableState.CAN_BE_EATEN)
@@ -145,15 +164,15 @@ namespace Assets.Scripts
         {
             Pacman.Eatable = ACharacter.EatableState.CAN_BE_EATEN;
             Pacman.ResetCharacter();
+
             foreach (Ghost ghost in ghosts_)
             {
-                ghost.Eatable = ACharacter.EatableState.CANNOT_BE_EATEN;
                 ghost.ResetCharacter();
+                ghost.SetNormalState();
             }
-            SetNormalCharacterStates();
         }
 
-        private void getInput()
+        private void GetInput()
         {
             if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
             {

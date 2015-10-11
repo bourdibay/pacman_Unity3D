@@ -8,12 +8,6 @@ namespace Assets.Scripts
 {
     public class LevelElements
     {
-        public bool IsFruit = false;
-        private bool[] recapFruit_ = { false, false };
-
-        public GameObject FruitGO;
-        private GameObject _fruitGOI;
-
         public enum MapElement
         {
             WALL,
@@ -28,7 +22,6 @@ namespace Assets.Scripts
 
         public MapElement[,] Map;
 
-
         private int nbPoints_ = 0;
         public int NbPoints
         {
@@ -36,29 +29,17 @@ namespace Assets.Scripts
             set { nbPoints_ = value; }
         }
 
-
-        /*
-                private Fruit _fruit = null;
-                public Fruit FruitChar
-                {
-                    get { return _fruit; }
-                    set { _fruit = value; }
-                }*/
-
+        // Fruits
         public Vector2 FruitCoord { get; set; }
+        public GameObject FruitObject;
+        public bool HasEatenFruit = false;
+        public GameObject fruitInstance_ = null;
+
         public Vector2 RespawnCoord { get; set; }
 
         public LevelElements(int widthMap, int heightMap)
         {
             Map = new MapElement[widthMap, heightMap];
-        }
-        void Start()
-        {
-           /* SoundBackground = new OTSound("pacman_background");
-            SoundBackground.Idle();
-            SoundBackground.Loop();
-            SoundBackground.Play();
-            _pointToReachForLife = 1;*/
         }
 
         public int GetHeightLength()
@@ -69,6 +50,32 @@ namespace Assets.Scripts
         {
             return Map.GetLength(0);
         }
+        public void PopUpFruit()
+        {
+            fruitInstance_ = (GameObject)LevelsLoader.Instantiate(FruitObject);
+            if (fruitInstance_ != null)
+            {
+                OTFilledSprite sp = fruitInstance_.GetComponent<OTFilledSprite>();
+                sp.position = FruitCoord;
+                sp.transform.rotation = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
+                sp.depth = 0;
+                sp.transform.position = new Vector3(FruitCoord.x, FruitCoord.y, 0.0f);
+                sp.size = new Vector2(1, 1);
+            }
+        }
 
+        public bool IsFruitInstantiated()
+        {
+            return fruitInstance_ != null;
+        }
+
+        public void DestroyFruit()
+        {
+            if (fruitInstance_ != null)
+            {
+                LevelsLoader.DestroyImmediate(fruitInstance_.gameObject);
+                fruitInstance_ = null;
+            }
+        }
     }
 }

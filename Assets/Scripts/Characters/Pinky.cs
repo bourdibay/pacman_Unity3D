@@ -7,7 +7,6 @@ namespace Assets.Scripts
 {
     public class Pinky : Ghost
     {
-
         public Pinky()
         {
             SpriteContainerNormal = "pinky";

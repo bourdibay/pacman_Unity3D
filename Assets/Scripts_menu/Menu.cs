@@ -106,6 +106,5 @@ namespace Assets.Scripts_menu
             GUI.skin = skinToApply;
             window_ = GUI.Window(0, window_, doWindow, "");
         }
-
     }
 }

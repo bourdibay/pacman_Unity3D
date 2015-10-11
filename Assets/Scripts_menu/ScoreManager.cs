@@ -43,7 +43,7 @@ namespace Assets.Scripts_menu
 
         void Start()
         {
-            // Load the score from<the preferences.
+            // Load the score from the preferences.
             foreach (string score in SCORE_KEYS)
             {
                 int scoreValue = PlayerPrefs.GetInt(score);
@@ -54,7 +54,7 @@ namespace Assets.Scripts_menu
             }
         }
 
-        void OnDestroy()
+        void WriteScores()
         {
             int i = 0;
             foreach (int score in scoresSaved_)
@@ -71,6 +71,7 @@ namespace Assets.Scripts_menu
             {
                 scoresSaved_.RemoveAt(scoresSaved_.Count - 1);
             }
+            WriteScores();
         }
 
     }

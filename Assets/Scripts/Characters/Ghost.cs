@@ -24,6 +24,7 @@ namespace Assets.Scripts
         public Ghost()
         {
             Frame = FRAME_GHOST;
+            Eatable = EatableState.CANNOT_BE_EATEN;
         }
 
         public void SetNormalState()
@@ -214,7 +215,5 @@ namespace Assets.Scripts
                 }
             }
         }
-
     }
-
 }
