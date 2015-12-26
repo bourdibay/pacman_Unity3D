@@ -9,4 +9,4 @@ I also used the asset [Necromancer GUI](http://forum.unity3d.com/threads/80174-N
 
 I strove to implement the real behavior of the ghosts following [this (excellent) dossier](http://home.comcast.net/~jpittman2/pacman/pacmandossier.html)
 
-Thus each ghost behave differently, there is an highscore table, musics and sounds, bonus, and we can provide our own maps.
+Thus each ghost behaves differently, there is an highscore table, musics and sounds, bonuses, and we can provide our own maps.
