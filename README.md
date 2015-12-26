@@ -17,3 +17,9 @@ How to play ?
 Use the arrows to move.
 Use + and - to zoom in or out.
 There are currently only two levels (stored in ./Assets/Resources/Levels/). The scores are stored in the register HKEY_CURRENT_USER/SOFTWARE/%username%/pacman3/.
+
+### Screenshots
+![screen1](https://github.com/bourdibay/pacman_Unity3D/blob/master/Screenshots/menu1.png)
+![screen2](https://github.com/bourdibay/pacman_Unity3D/blob/master/Screenshots/play1.png)
+![screen3](https://github.com/bourdibay/pacman_Unity3D/blob/master/Screenshots/play2.png)
+![screen4](https://github.com/bourdibay/pacman_Unity3D/blob/master/Screenshots/play3.png)
