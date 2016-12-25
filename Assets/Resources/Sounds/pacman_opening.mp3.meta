@@ -1,11 +1,22 @@
 fileFormatVersion: 2
 guid: d8787812949c7d24da3fd1106aee0a16
+timeCreated: 1482682892
+licenseType: Free
 AudioImporter:
-  serializedVersion: 4
-  format: 0
-  quality: .439999998
-  stream: 1
-  3D: 0
+  serializedVersion: 6
+  defaultSettings:
+    loadType: 0
+    sampleRateSetting: 0
+    sampleRateOverride: 44100
+    compressionFormat: 1
+    quality: 1
+    conversionMode: 0
+  platformSettingOverrides: {}
   forceToMono: 0
-  useHardware: 0
-  loopable: 0
+  normalize: 1
+  preloadAudioData: 1
+  loadInBackground: 0
+  3D: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
